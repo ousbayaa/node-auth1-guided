@@ -1,7 +1,9 @@
 const router = require("express").Router();
 const bcrypt = require("bcryptjs");
+const jwt = require('jsonwebtoken'); // ---> npm i jsonwebtoken
 
 const Users = require("../users/users-model.js");
+const secrets = require('../api/secrets');
 
 router.post("/register", (req, res) => {
   let user = req.body; // username, password
@@ -33,8 +35,11 @@ router.post("/login", (req, res) => {
     .then(([user]) => {
       // if we find the user, then also check that passwords match
       if (user && bcrypt.compareSync(password, user.password)) {
-        req.session.loggedIn = true;
-        res.status(200).json({ message: "Welcome!" });
+        // produce a token
+        const token = generateToken(user);
+
+        // send the token to the client
+        res.status(200).json({ message: "Welcome!", token});
       } else {
         res.status(401).json({ message: "You cannot pass!" });
       }
@@ -44,5 +49,19 @@ router.post("/login", (req, res) => {
       res.status(500).json({ errorMessage: error.message });
     });
 });
+
+function generateToken(user) {
+  // payload is the data
+  const payload = {
+    userId: user.id,
+    username: user.username
+  };
+  const secret = secrets.jwtSecret;
+  const options = {
+    expiresIn: '1d'
+  }
+  
+  return jwt.sign(payload, secret, options);
+}
 
 module.exports = router;

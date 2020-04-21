@@ -26,3 +26,16 @@ Please follow along as the instructor adds authentication to the API.
 - log out.
 - restrict access to resources.
 
+## Tokens
+- the server does not store info, the info is stored on the token. There is nothing to destroy
+
+## Server
+- on successeful login/register, produce and send a token
+- send token to the client
+- on following requests, verify the token
+- if token is good, provide access, if not block access.
+
+## Client
+- store the tooken (memory, local storage, header .....)
+- send the token on every request
+- destroy the token on logout
